@@ -347,17 +347,6 @@
             text-align: center;
             color: var(--mit-dark-gray);
         }
-        
-        /* Add confetti canvas styling */
-        #confetti-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 9999;
-        }
     </style>
 </head>
 <body>
@@ -454,12 +443,6 @@
             </table>
         </div>
     </div>
-
-    <!-- Add confetti canvas -->
-    <canvas id="confetti-canvas"></canvas>
-    
-    <!-- Add the confetti.js library from CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/canvas-confetti/1.6.0/confetti.browser.min.js"></script>
 
     <script>
         // Initialize localStorage at first load if not exists
@@ -580,55 +563,6 @@
         const schoolTabs = document.querySelectorAll('.school-tab');
         const currentSchoolTitle = document.querySelector('.current-school');
         const addSchoolTab = document.querySelector('.school-tab[data-school="add-school"]');
-        const confettiCanvas = document.getElementById('confetti-canvas');
-
-        // Set up confetti canvas
-        const myConfetti = confetti.create(confettiCanvas, {
-            resize: true,
-            useWorker: true
-        });
-        
-        // Function to fire confetti for 5 seconds when a school is marked as accepted
-        function celebrateAcceptance() {
-            // Define colors for confetti
-            const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#00ffff', '#ff00ff'];
-            
-            // Initial burst of confetti
-            myConfetti({
-                particleCount: 100,
-                spread: 160,
-                origin: { y: 0.7 },
-                colors: colors,
-                disableForReducedMotion: true
-            });
-            
-            // Continue confetti at intervals for 5 seconds
-            const endTime = Date.now() + 5000;
-            
-            // Interval for ongoing confetti
-            const interval = setInterval(() => {
-                if (Date.now() > endTime) {
-                    return clearInterval(interval);
-                }
-                
-                myConfetti({
-                    particleCount: 50,
-                    angle: randomInRange(60, 120),
-                    spread: randomInRange(50, 100),
-                    origin: { 
-                        x: randomInRange(0.2, 0.8), 
-                        y: randomInRange(0.2, 0.5) 
-                    },
-                    colors: colors,
-                    ticks: 300,
-                });
-            }, 200);
-        }
-        
-        // Helper function for random range
-        function randomInRange(min, max) {
-            return Math.random() * (max - min) + min;
-        }
 
         // Add event listeners
         const facultyForm = document.getElementById('faculty-form');
@@ -959,7 +893,6 @@
         
         function toggleSchoolStatus(schoolId) {
             const school = appData.schools[schoolId];
-            const previousStatus = school.status;
             
             // Cycle through statuses
             switch(school.status) {
@@ -968,8 +901,6 @@
                     break;
                 case 'pending':
                     school.status = 'accepted';
-                    // When changing to accepted, trigger confetti
-                    celebrateAcceptance();
                     break;
                 case 'accepted':
                     school.status = 'rejected';
