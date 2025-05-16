@@ -64,6 +64,30 @@
             display: flex;
             margin-bottom: 20px;
             gap: 10px;
+            overflow-x: auto;
+            white-space: nowrap;
+            padding-bottom: 10px;
+            scrollbar-width: thin;
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+        }
+        
+        /* Customize scrollbar appearance for WebKit browsers (Chrome, Safari, etc.) */
+        .schools-tabs::-webkit-scrollbar {
+            height: 6px;
+        }
+        
+        .schools-tabs::-webkit-scrollbar-track {
+            background: var(--mit-light-gray);
+            border-radius: 10px;
+        }
+        
+        .schools-tabs::-webkit-scrollbar-thumb {
+            background: var(--mit-dark-gray);
+            border-radius: 10px;
+        }
+        
+        .schools-tabs::-webkit-scrollbar-thumb:hover {
+            background: var(--mit-red);
         }
         
         .school-tab {
@@ -79,6 +103,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            flex-shrink: 0; /* Prevent tabs from shrinking */
         }
         
         .school-tab.active {
