@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Application Tracker</title>
+    <style>
+        :root {
+            --mit-red: #a31f34;
+            --mit-light-gray: #f2f2f2;
+            --mit-dark-gray: #8a8b8c;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --radius: 8px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--mit-light-gray);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--mit-red);
+        }
+        
+        .header h1 {
+            color: var(--mit-red);
+            font-size: 32px;
+            font-weight: 600;
+        }
+        
+        .schools-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+        
+        .school-tab {
+            padding: 10px 20px;
+            background-color: white;
+            border: 2px solid var(--mit-dark-gray);
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow);
+        }
+        
+        .school-tab.active {
+            background-color: var(--mit-red);
+            color: white;
+            border-color: var(--mit-red);
+        }
+        
+        .school-tab:hover:not(.active) {
+            background-color: var(--mit-dark-gray);
+            color: white;
+        }
+        
+        .add-panel {
+            background-color: white;
+            padding: 20px;
+            border-radius: var(--radius);
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .form-group {
+            flex: 1;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #444;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--mit-dark-gray);
+            border-radius: var(--radius);
+            font-size: 16px;
+            transition: border 0.2s;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--mit-red);
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: var(--shadow);
+        }
+        
+        .btn-primary {
+            background-color: var(--mit-red);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #8a1a2a;
+        }
+        
+        .faculty-list {
+            background-color: white;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+        
+        .faculty-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .faculty-table th, .faculty-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .faculty-table th {
+            background-color: var(--mit-red);
+            color: white;
+            font-weight: 600;
+        }
+        
+        .faculty-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .faculty-table tr:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .badge-success {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .badge-warning {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        
+        .badge-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .badge-secondary {
+            background-color: var(--mit-dark-gray);
+            color: white;
+        }
+        
+        .action-cell {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-icon {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-edit {
+            background-color: #17a2b8;
+            color: white;
+        }
+        
+        .btn-delete {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .btn-emailed {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .btn-icon:hover {
+            filter: brightness(1.1);
+            transform: translateY(-2px);
+        }
+        
+        .current-school {
+            font-size: 18px;
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 10px;
+        }
+        
+        .empty-state {
+            padding: 40px;
+            text-align: center;
+            color: var(--mit-dark-gray);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Faculty Application Tracker</h1>
+        </div>
+        
+        <div class="schools-tabs">
+            <div class="school-tab active" data-school="mit">MIT</div>
+            <div class="school-tab" data-school="stanford">Stanford</div>
+            <div class="school-tab" data-school="add-school">+ Add School</div>
+        </div>
+        
+        <div class="add-panel">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="faculty-name">Faculty Name</label>
+                    <input type="text" id="faculty-name" class="form-control" placeholder="e.g. John Smith">
+                </div>
+                <div class="form-group">
+                    <label for="faculty-email">Email</label>
+                    <input type="email" id="faculty-email" class="form-control" placeholder="e.g. jsmith@mit.edu">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="lab-name">Lab Name</label>
+                    <input type="text" id="lab-name" class="form-control" placeholder="e.g. Quantum Physics Lab">
+                </div>
+                <div class="form-group">
+                    <label for="lab-website">Lab Website</label>
+                    <input type="url" id="lab-website" class="form-control" placeholder="e.g. https://lab.mit.edu">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="accepting-status">Accepting Status</label>
+                    <select id="accepting-status" class="form-control">
+                        <option value="unknown">Unknown</option>
+                        <option value="accepting">Is Accepting Next Fall</option>
+                        <option value="not-accepting">Not Accepting</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="emailed-status">Emailed Status</label>
+                    <select id="emailed-status" class="form-control">
+                        <option value="no">Not Emailed</option>
+                        <option value="sent">Email Sent</option>
+                        <option value="replied">Received Reply</option>
+                    </select>
+                </div>
+            </div>
+            <button id="add-faculty" class="btn btn-primary">Add Faculty</button>
+        </div>
+        
+        <div class="current-school">MIT Faculty List</div>
+        
+        <div class="faculty-list">
+            <table class="faculty-table">
+                <thead>
+                    <tr>
+                        <th>Faculty Name</th>
+                        <th>Lab</th>
+                        <th>Accepting</th>
+                        <th>Emailed</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="faculty-table-body">
+                    <!-- Table content will be generated dynamically -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Initialize localStorage at first load if not exists
+        if (!localStorage.getItem('appInitialized')) {
+            localStorage.clear(); // Clear any old data
+            localStorage.setItem('appInitialized', 'true');
+        }
+        // Initial data from the document
+        const initialData = {
+            mit: [
+                { 
+                    name: "Henry Asegun", 
+                    email: "ase@mit.edu", 
+                    lab: "Atomistic Simulation and Energy Research Lab", 
+                    website: "https://ase.mit.edu/team/", 
+                    accepting: "unknown", 
+                    emailed: "no" 
+                },
+                { 
+                    name: "Gang Chen", 
+                    email: "gchen2@mit.edu", 
+                    lab: "NanoEngineering Group", 
+                    website: "https://web.mit.edu/nanoengineering/", 
+                    accepting: "unknown", 
+                    emailed: "no" 
+                },
+                { 
+                    name: "Svetlana V. Boriskina", 
+                    email: "sborisk@mit.edu", 
+                    lab: "Multifunctional Metamaterials (META)", 
+                    website: "https://sites.mit.edu/metalab/", 
+                    accepting: "accepting", 
+                    emailed: "no" 
+                },
+                { 
+                    name: "Wai Cheng", 
+                    email: "wkcheng@mit.edu", 
+                    lab: "Sloan Automotive Laboratory", 
+                    website: "https://sloan-auto-lab.mit.edu/", 
+                    accepting: "unknown", 
+                    emailed: "no" 
+                },
+                { 
+                    name: "Sili Deng", 
+                    email: "silideng@mit.edu", 
+                    lab: "Deng Energy and Nanotechnology Group", 
+                    website: "https://deng.mit.edu/index.html", 
+                    accepting: "accepting", 
+                    emailed: "no" 
+                },
+                { 
+                    name: "Evelyn Wang", 
+                    email: "ENWANG@MIT.EDU", 
+                    lab: "Device Research Lab", 
+                    website: "https://drl.mit.edu/", 
+                    accepting: "unknown", 
+                    emailed: "no" 
+                }
+            ],
+            stanford: [
+                { 
+                    name: "Matthew Edwards", 
+                    email: "mredwards@stanford.edu", 
+                    lab: "SAPPHIRE Laboratory", 
+                    website: "https://edwardslab.stanford.edu/positions", 
+                    accepting: "accepting", 
+                    emailed: "no" 
+                },
+                { 
+                    name: "Kenneth Goodson", 
+                    email: "goodson@stanford.edu", 
+                    lab: "Stanford Nano Heat", 
+                    website: "https://nanoheat.stanford.edu/", 
+                    accepting: "unknown", 
+                    emailed: "no" 
+                }
+            ]
+        };
+
+        // Store data
+        let appData = {
+            currentSchool: 'mit',
+            schools: {
+                mit: {
+                    name: 'MIT',
+                    faculty: [...initialData.mit]
+                },
+                stanford: {
+                    name: 'Stanford',
+                    faculty: [...initialData.stanford]
+                }
+            }
+        };
+
+        // Check if data exists in localStorage
+        if (localStorage.getItem('facultyTrackerData')) {
+            try {
+                const savedData = JSON.parse(localStorage.getItem('facultyTrackerData'));
+                // Properly load saved data
+                if (savedData && savedData.schools) {
+                    // Complete replacement of app data with saved data
+                    appData = savedData;
+                    console.log('Loaded data from localStorage:', appData);
+                }
+            } catch (e) {
+                console.error('Error loading data from localStorage', e);
+            }
+        } else {
+            // If no saved data exists, save the initial data
+            saveData();
+            console.log('Initialized with default data');
+        }
+
+        // DOM elements
+        const facultyTableBody = document.getElementById('faculty-table-body');
+        const schoolTabs = document.querySelectorAll('.school-tab');
+        const currentSchoolTitle = document.querySelector('.current-school');
+        const addSchoolTab = document.querySelector('.school-tab[data-school="add-school"]');
+
+        // Add event listeners
+        document.getElementById('add-faculty').addEventListener('click', addFaculty);
+        
+        schoolTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const school = tab.dataset.school;
+                if (school === 'add-school') {
+                    showAddSchoolPrompt();
+                } else {
+                    changeSchool(school);
+                }
+            });
+        });
+
+        // Functions
+        function renderFacultyTable() {
+            facultyTableBody.innerHTML = '';
+            
+            const currentSchoolData = appData.schools[appData.currentSchool];
+            
+            if (!currentSchoolData || !currentSchoolData.faculty.length) {
+                facultyTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5">
+                            <div class="empty-state">
+                                <p>No faculty added yet for ${currentSchoolData ? currentSchoolData.name : 'this school'}.</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            currentSchoolData.faculty.forEach((faculty, index) => {
+                const tr = document.createElement('tr');
+                
+                // Create email link for faculty name
+                const emailLink = faculty.email ? 
+                    `<a href="mailto:${faculty.email}" title="Send email">${faculty.name}</a>` : 
+                    faculty.name;
+                
+                // Create lab link
+                const labLink = faculty.website ? 
+                    `<a href="${faculty.website}" target="_blank" title="Visit lab website">${faculty.lab}</a>` : 
+                    faculty.lab;
+                
+                // Accepting status badge
+                let acceptingBadge = '';
+                if (faculty.accepting === 'accepting') {
+                    acceptingBadge = '<span class="badge badge-success">Accepting</span>';
+                } else if (faculty.accepting === 'not-accepting') {
+                    acceptingBadge = '<span class="badge badge-danger">Not Accepting</span>';
+                } else {
+                    acceptingBadge = '<span class="badge badge-warning">Unknown</span>';
+                }
+                
+                // Emailed status badge
+                let emailedBadge = '';
+                if (faculty.emailed === 'replied') {
+                    emailedBadge = '<span class="badge badge-success">Replied</span>';
+                } else if (faculty.emailed === 'sent') {
+                    emailedBadge = '<span class="badge badge-warning">Sent</span>';
+                } else {
+                    emailedBadge = '<span class="badge badge-secondary">Not Emailed</span>';
+                }
+                
+                tr.innerHTML = `
+                    <td>${emailLink}</td>
+                    <td>${labLink}</td>
+                    <td>${acceptingBadge}</td>
+                    <td>${emailedBadge}</td>
+                    <td class="action-cell">
+                        <button class="btn-icon btn-edit" title="Edit" onclick="editFaculty(${index})">✏️</button>
+                        <button class="btn-icon btn-emailed" title="Mark as Emailed" onclick="toggleEmailed(${index})">📧</button>
+                        <button class="btn-icon btn-delete" title="Delete" onclick="deleteFaculty(${index})">🗑️</button>
+                    </td>
+                `;
+                
+                facultyTableBody.appendChild(tr);
+            });
+        }
+
+        function addFaculty() {
+            const name = document.getElementById('faculty-name').value.trim();
+            const email = document.getElementById('faculty-email').value.trim();
+            const lab = document.getElementById('lab-name').value.trim();
+            const website = document.getElementById('lab-website').value.trim();
+            const accepting = document.getElementById('accepting-status').value;
+            const emailed = document.getElementById('emailed-status').value;
+            
+            if (!name || !lab) {
+                alert('Faculty name and lab name are required!');
+                return;
+            }
+            
+            appData.schools[appData.currentSchool].faculty.push({
+                name,
+                email,
+                lab,
+                website,
+                accepting,
+                emailed
+            });
+            
+            saveData();
+            renderFacultyTable();
+            clearForm();
+        }
+
+        function editFaculty(index) {
+            const faculty = appData.schools[appData.currentSchool].faculty[index];
+            
+            document.getElementById('faculty-name').value = faculty.name;
+            document.getElementById('faculty-email').value = faculty.email;
+            document.getElementById('lab-name').value = faculty.lab;
+            document.getElementById('lab-website').value = faculty.website;
+            document.getElementById('accepting-status').value = faculty.accepting;
+            document.getElementById('emailed-status').value = faculty.emailed;
+            
+            // Change button to update mode
+            const addButton = document.getElementById('add-faculty');
+            addButton.textContent = 'Update Faculty';
+            addButton.onclick = function() {
+                updateFaculty(index);
+            };
+        }
+
+        function updateFaculty(index) {
+            const name = document.getElementById('faculty-name').value.trim();
+            const email = document.getElementById('faculty-email').value.trim();
+            const lab = document.getElementById('lab-name').value.trim();
+            const website = document.getElementById('lab-website').value.trim();
+            const accepting = document.getElementById('accepting-status').value;
+            const emailed = document.getElementById('emailed-status').value;
+            
+            if (!name || !lab) {
+                alert('Faculty name and lab name are required!');
+                return;
+            }
+            
+            appData.schools[appData.currentSchool].faculty[index] = {
+                name,
+                email,
+                lab,
+                website,
+                accepting,
+                emailed
+            };
+            
+            saveData();
+            renderFacultyTable();
+            clearForm();
+            
+            // Reset button
+            const addButton = document.getElementById('add-faculty');
+            addButton.textContent = 'Add Faculty';
+            addButton.onclick = addFaculty;
+        }
+
+        function deleteFaculty(index) {
+            if (confirm('Are you sure you want to delete this faculty?')) {
+                appData.schools[appData.currentSchool].faculty.splice(index, 1);
+                saveData();
+                renderFacultyTable();
+            }
+        }
+
+        function toggleEmailed(index) {
+            const faculty = appData.schools[appData.currentSchool].faculty[index];
+            
+            // Cycle through emailed statuses
+            if (faculty.emailed === 'no') {
+                faculty.emailed = 'sent';
+            } else if (faculty.emailed === 'sent') {
+                faculty.emailed = 'replied';
+            } else {
+                faculty.emailed = 'no';
+            }
+            
+            saveData();
+            renderFacultyTable();
+        }
+
+        function clearForm() {
+            document.getElementById('faculty-name').value = '';
+            document.getElementById('faculty-email').value = '';
+            document.getElementById('lab-name').value = '';
+            document.getElementById('lab-website').value = '';
+            document.getElementById('accepting-status').value = 'unknown';
+            document.getElementById('emailed-status').value = 'no';
+        }
+
+        function changeSchool(school) {
+            // Update active tab
+            schoolTabs.forEach(tab => {
+                if (tab.dataset.school === school) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+            
+            appData.currentSchool = school;
+            currentSchoolTitle.textContent = `${appData.schools[school].name} Faculty List`;
+            renderFacultyTable();
+        }
+
+        function showAddSchoolPrompt() {
+            const schoolName = prompt('Enter the name of the new school:');
+            if (schoolName && schoolName.trim()) {
+                const schoolId = schoolName.toLowerCase().replace(/\s+/g, '-');
+                
+                // Add new school
+                appData.schools[schoolId] = {
+                    name: schoolName.trim(),
+                    faculty: []
+                };
+                
+                // Update UI
+                updateSchoolTabs();
+                
+                // Switch to new school
+                changeSchool(schoolId);
+                saveData();
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('facultyTrackerData', JSON.stringify(appData));
+            console.log('Data saved to localStorage:', appData);
+        }
+
+        // Update the UI based on loaded schools
+        function updateSchoolTabs() {
+            // Clear existing school tabs (except the add-school tab)
+            const tabsContainer = document.querySelector('.schools-tabs');
+            Array.from(tabsContainer.children).forEach(child => {
+                if (child.dataset.school !== 'add-school') {
+                    tabsContainer.removeChild(child);
+                }
+            });
+            
+            // Add tabs for each school in appData
+            Object.keys(appData.schools).forEach(schoolId => {
+                const newTab = document.createElement('div');
+                newTab.className = 'school-tab';
+                newTab.dataset.school = schoolId;
+                newTab.textContent = appData.schools[schoolId].name;
+                
+                if (schoolId === appData.currentSchool) {
+                    newTab.classList.add('active');
+                }
+                
+                newTab.addEventListener('click', () => {
+                    changeSchool(schoolId);
+                });
+                
+                // Insert before "Add School" tab
+                tabsContainer.insertBefore(newTab, addSchoolTab);
+            });
+        }
+        
+        // Call this function when the page loads
+        updateSchoolTabs();
+
+        // Make functions available globally for onclick handlers
+        window.editFaculty = editFaculty;
+        window.deleteFaculty = deleteFaculty;
+        window.toggleEmailed = toggleEmailed;
+    </script>
+</body>
+</html>
