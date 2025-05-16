@@ -347,8 +347,8 @@
             text-align: center;
             color: var(--mit-dark-gray);
         }
-
-        /* Confetti Canvas */
+        
+        /* Add confetti canvas styling */
         #confetti-canvas {
             position: fixed;
             top: 0;
@@ -455,9 +455,9 @@
         </div>
     </div>
 
-    <!-- Add a canvas for the confetti -->
+    <!-- Add confetti canvas -->
     <canvas id="confetti-canvas"></canvas>
-
+    
     <!-- Add the confetti.js library from CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/canvas-confetti/1.6.0/confetti.browser.min.js"></script>
 
@@ -588,44 +588,46 @@
             useWorker: true
         });
         
-        // Function to fire confetti
-        function fireConfetti() {
-            // Configure confetti
-            const confettiColors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#00ffff', '#ff00ff'];
-            const origin = { y: 0.7 }; // Start from mid-screen
+        // Function to fire confetti for 5 seconds when a school is marked as accepted
+        function celebrateAcceptance() {
+            // Define colors for confetti
+            const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#00ffff', '#ff00ff'];
             
-            // Fire the confetti with custom settings
+            // Initial burst of confetti
             myConfetti({
                 particleCount: 100,
                 spread: 160,
-                origin: origin,
-                colors: confettiColors,
-                shapes: ['square', 'circle'],
-                ticks: 200,
-                gravity: 0.8,
-                zIndex: 9999
+                origin: { y: 0.7 },
+                colors: colors,
+                disableForReducedMotion: true
             });
+            
+            // Continue confetti at intervals for 5 seconds
+            const endTime = Date.now() + 5000;
+            
+            // Interval for ongoing confetti
+            const interval = setInterval(() => {
+                if (Date.now() > endTime) {
+                    return clearInterval(interval);
+                }
+                
+                myConfetti({
+                    particleCount: 50,
+                    angle: randomInRange(60, 120),
+                    spread: randomInRange(50, 100),
+                    origin: { 
+                        x: randomInRange(0.2, 0.8), 
+                        y: randomInRange(0.2, 0.5) 
+                    },
+                    colors: colors,
+                    ticks: 300,
+                });
+            }, 200);
         }
         
-        // For more intense celebration, add a second wave of confetti
-        function celebrateAcceptance() {
-            // First wave
-            fireConfetti();
-            
-            // Second wave after a short delay
-            setTimeout(fireConfetti, 300);
-            
-            // Final wave
-            setTimeout(() => {
-                myConfetti({
-                    particleCount: 150,
-                    spread: 180,
-                    origin: { y: 0.5 },
-                    gravity: 0.7,
-                    decay: 0.94,
-                    ticks: 300
-                });
-            }, 600);
+        // Helper function for random range
+        function randomInRange(min, max) {
+            return Math.random() * (max - min) + min;
         }
 
         // Add event listeners
@@ -966,7 +968,7 @@
                     break;
                 case 'pending':
                     school.status = 'accepted';
-                    // Trigger confetti when status changes to accepted
+                    // When changing to accepted, trigger confetti
                     celebrateAcceptance();
                     break;
                 case 'accepted':
