@@ -622,8 +622,8 @@
             const accepting = document.getElementById('accepting-status').value;
             const emailed = document.getElementById('emailed-status').value;
             
-            if (!name || !lab) {
-                alert('Faculty name and lab name are required!');
+            if (!name) {
+                alert('Faculty name is required!');
                 return;
             }
             
@@ -645,15 +645,20 @@
             const faculty = appData.schools[appData.currentSchool].faculty[index];
             
             document.getElementById('faculty-name').value = faculty.name;
-            document.getElementById('faculty-email').value = faculty.email;
-            document.getElementById('lab-name').value = faculty.lab;
-            document.getElementById('lab-website').value = faculty.website;
-            document.getElementById('accepting-status').value = faculty.accepting;
-            document.getElementById('emailed-status').value = faculty.emailed;
+            document.getElementById('faculty-email').value = faculty.email || '';
+            document.getElementById('lab-name').value = faculty.lab || '';
+            document.getElementById('lab-website').value = faculty.website || '';
+            document.getElementById('accepting-status').value = faculty.accepting || 'unknown';
+            document.getElementById('emailed-status').value = faculty.emailed || 'no';
             
             // Change button to update mode
             const addButton = document.getElementById('add-faculty');
             addButton.textContent = 'Update Faculty';
+            
+            // Important: Remove any existing onclick handlers first
+            addButton.onclick = null;
+            
+            // Set the new onclick handler
             addButton.onclick = function() {
                 updateFaculty(index);
             };
@@ -667,8 +672,8 @@
             const accepting = document.getElementById('accepting-status').value;
             const emailed = document.getElementById('emailed-status').value;
             
-            if (!name || !lab) {
-                alert('Faculty name and lab name are required!');
+            if (!name) {
+                alert('Faculty name is required!');
                 return;
             }
             
@@ -738,6 +743,16 @@
             document.getElementById('lab-website').value = '';
             document.getElementById('accepting-status').value = 'unknown';
             document.getElementById('emailed-status').value = 'no';
+            
+            // Reset button to add mode if it's in update mode
+            const addButton = document.getElementById('add-faculty');
+            if (addButton.textContent === 'Update Faculty') {
+                addButton.textContent = 'Add Faculty';
+                // Remove any existing onclick handlers
+                addButton.onclick = null;
+                // Set back to add mode
+                addButton.onclick = addFaculty;
+            }
         }
 
         function changeSchool(school) {
