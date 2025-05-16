@@ -34,7 +34,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
+            margin-bottom: 10px; /* Reduced margin to move content up */
             padding-bottom: 20px;
             border-bottom: 2px solid var(--mit-red);
         }
@@ -48,8 +48,8 @@
         .status-legend {
             display: flex;
             gap: 15px;
-            margin-top: 10px;
-            margin-bottom: 20px;
+            margin-top: 5px;
+            margin-bottom: 10px;
             font-size: 14px;
             color: var(--mit-dark-gray);
         }
@@ -156,7 +156,8 @@
             border-radius: 50%;
             background-color: var(--mit-red);
             color: white;
-            font-size: 12px;
+            font-size: 14px; /* Slightly larger font */
+            line-height: 1; /* Better vertical centering */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -165,6 +166,7 @@
             opacity: 0;
             transition: opacity 0.2s, visibility 0.2s;
             z-index: 10; /* Ensure it stays on top */
+            padding-bottom: 2px; /* Adjust vertical position of the × */
         }
         
         .school-tab:hover .delete-school {
@@ -368,6 +370,8 @@
                 <span>Rejected</span>
             </div>
         </div>
+        
+        <div class="schools-tabs">
         
         <div class="schools-tabs">
             <div class="school-tab active" data-school="mit">MIT</div>
@@ -855,7 +859,7 @@
                 if (Object.keys(appData.schools).length > 1) {
                     const deleteBtn = document.createElement('span');
                     deleteBtn.className = 'delete-school';
-                    deleteBtn.innerHTML = '×';
+                    deleteBtn.innerHTML = '×'; // Using the multiplication symbol
                     deleteBtn.title = 'Delete school';
                     deleteBtn.addEventListener('click', (e) => {
                         e.stopPropagation(); // Prevent triggering the tab click
