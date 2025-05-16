@@ -348,6 +348,9 @@
             color: var(--mit-dark-gray);
         }
     </style>
+    <!-- add this just before your existing <script>…</script> -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+
 </head>
 <body>
     <div class="container">
@@ -891,7 +894,7 @@
             }
         }
         
-        function toggleSchoolStatus(schoolId) {
+         function toggleSchoolStatus(schoolId) {
             const school = appData.schools[schoolId];
             
             // Cycle through statuses
@@ -911,10 +914,21 @@
                 default:
                     school.status = 'not-applied';
             }
+        
+            // 🎉 fire confetti when they hit "accepted"
+            if (school.status === 'accepted') {
+              // a little burst from center-top
+              confetti({
+                particleCount: 100,
+                spread: 60,
+                origin: { y: 0.2 }
+              });
+            }
             
             saveData();
             updateSchoolTabs();
         }
+
         
         function deleteSchool(schoolId) {
             if (Object.keys(appData.schools).length <= 1) {
