@@ -67,7 +67,6 @@
             overflow-x: auto;
             white-space: nowrap;
             padding-bottom: 10px;
-            padding-top: 10px; /* Add padding at top to ensure delete button visibility */
             scrollbar-width: thin;
             -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
         }
@@ -105,7 +104,6 @@
             align-items: center;
             gap: 10px;
             flex-shrink: 0; /* Prevent tabs from shrinking */
-            margin-top: 10px; /* Add margin at top to make room for the delete button */
         }
         
         .school-tab.active {
@@ -166,14 +164,12 @@
             visibility: hidden;
             opacity: 0;
             transition: opacity 0.2s, visibility 0.2s;
-            z-index: 10; /* Increase z-index to ensure it stays on top */
-            box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2); /* Add shadow for better visibility */
+            z-index: 10; /* Keep higher z-index to ensure it stays on top */
         }
         
         .school-tab:hover .delete-school {
             visibility: visible;
             opacity: 1;
-            transform: scale(1.1); /* Slightly enlarge on hover for better visibility */
         }
         
         .add-panel {
@@ -859,8 +855,6 @@
                     deleteBtn.className = 'delete-school';
                     deleteBtn.innerHTML = '×';
                     deleteBtn.title = 'Delete school';
-                    deleteBtn.style.visibility = 'visible'; // Make delete button always visible
-                    deleteBtn.style.opacity = '1';          // Make delete button always visible
                     deleteBtn.addEventListener('click', (e) => {
                         e.stopPropagation(); // Prevent triggering the tab click
                         deleteSchool(schoolId);
