@@ -45,6 +45,20 @@
             font-weight: 600;
         }
         
+        .status-legend {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+            font-size: 14px;
+            color: var(--mit-dark-gray);
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
         .schools-tabs {
             display: flex;
             margin-bottom: 20px;
@@ -61,6 +75,9 @@
             transition: all 0.2s ease;
             box-shadow: var(--shadow);
             position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         
         .school-tab.active {
@@ -72,6 +89,36 @@
         .school-tab:hover:not(.active) {
             background-color: var(--mit-dark-gray);
             color: white;
+        }
+        
+        .school-status {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-left: 5px;
+            border: 1px solid #ccc;
+            cursor: pointer;
+        }
+        
+        .school-status.accepted {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+        
+        .school-status.rejected {
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+        
+        .school-status.pending {
+            background-color: #ffc107;
+            border-color: #ffc107;
+        }
+        
+        .school-status.not-applied {
+            background-color: #eee;
+            border-color: #ccc;
         }
         
         .delete-school {
@@ -275,6 +322,25 @@
             <h1>Faculty Application Tracker</h1>
         </div>
         
+        <div class="status-legend">
+            <div class="legend-item">
+                <span class="school-status not-applied"></span>
+                <span>Not Applied</span>
+            </div>
+            <div class="legend-item">
+                <span class="school-status pending"></span>
+                <span>Application Pending</span>
+            </div>
+            <div class="legend-item">
+                <span class="school-status accepted"></span>
+                <span>Accepted</span>
+            </div>
+            <div class="legend-item">
+                <span class="school-status rejected"></span>
+                <span>Rejected</span>
+            </div>
+        </div>
+        
         <div class="schools-tabs">
             <div class="school-tab active" data-school="mit">MIT</div>
             <div class="school-tab" data-school="stanford">Stanford</div>
@@ -427,11 +493,13 @@
             schools: {
                 mit: {
                     name: 'MIT',
-                    faculty: [...initialData.mit]
+                    faculty: [...initialData.mit],
+                    status: 'not-applied'
                 },
                 stanford: {
                     name: 'Stanford',
-                    faculty: [...initialData.stanford]
+                    faculty: [...initialData.stanford],
+                    status: 'not-applied'
                 }
             }
         };
@@ -695,7 +763,8 @@
                 // Add new school
                 appData.schools[schoolId] = {
                     name: schoolName.trim(),
-                    faculty: []
+                    faculty: [],
+                    status: 'not-applied'
                 };
                 
                 // Update UI
@@ -727,7 +796,21 @@
                 const newTab = document.createElement('div');
                 newTab.className = 'school-tab';
                 newTab.dataset.school = schoolId;
-                newTab.textContent = appData.schools[schoolId].name;
+                
+                // Create school name text
+                const schoolName = document.createElement('span');
+                schoolName.textContent = appData.schools[schoolId].name;
+                newTab.appendChild(schoolName);
+                
+                // Create status indicator
+                const statusIndicator = document.createElement('span');
+                statusIndicator.className = `school-status ${appData.schools[schoolId].status || 'not-applied'}`;
+                statusIndicator.title = getStatusTitle(appData.schools[schoolId].status);
+                statusIndicator.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleSchoolStatus(schoolId);
+                });
+                newTab.appendChild(statusIndicator);
                 
                 // Add delete button, but only if we have more than one school
                 if (Object.keys(appData.schools).length > 1) {
@@ -753,6 +836,40 @@
                 // Insert before "Add School" tab
                 tabsContainer.insertBefore(newTab, addSchoolTab);
             });
+        }
+        
+        function getStatusTitle(status) {
+            switch(status) {
+                case 'accepted': return 'Accepted';
+                case 'rejected': return 'Rejected';
+                case 'pending': return 'Application Pending';
+                default: return 'Not Applied';
+            }
+        }
+        
+        function toggleSchoolStatus(schoolId) {
+            const school = appData.schools[schoolId];
+            
+            // Cycle through statuses
+            switch(school.status) {
+                case 'not-applied':
+                    school.status = 'pending';
+                    break;
+                case 'pending':
+                    school.status = 'accepted';
+                    break;
+                case 'accepted':
+                    school.status = 'rejected';
+                    break;
+                case 'rejected':
+                    school.status = 'not-applied';
+                    break;
+                default:
+                    school.status = 'not-applied';
+            }
+            
+            saveData();
+            updateSchoolTabs();
         }
         
         function deleteSchool(schoolId) {
@@ -794,6 +911,7 @@
         window.toggleEmailed = toggleEmailed;
         window.toggleAccepting = toggleAccepting;
         window.deleteSchool = deleteSchool;
+        window.toggleSchoolStatus = toggleSchoolStatus;
     </script>
 </body>
 </html>
