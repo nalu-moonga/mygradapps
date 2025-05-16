@@ -484,11 +484,11 @@
                 // Accepting status badge
                 let acceptingBadge = '';
                 if (faculty.accepting === 'accepting') {
-                    acceptingBadge = '<span class="badge badge-success">Accepting</span>';
+                    acceptingBadge = 'Accepting';
                 } else if (faculty.accepting === 'not-accepting') {
-                    acceptingBadge = '<span class="badge badge-danger">Not Accepting</span>';
+                    acceptingBadge = 'Not Accepting';
                 } else {
-                    acceptingBadge = '<span class="badge badge-warning">Unknown</span>';
+                    acceptingBadge = 'Unknown';
                 }
                 
                 // Emailed status badge
@@ -504,7 +504,9 @@
                 tr.innerHTML = `
                     <td>${emailLink}</td>
                     <td>${labLink}</td>
-                    <td>${acceptingBadge}</td>
+                    <td><span class="badge badge-${faculty.accepting === 'accepting' ? 'success' : faculty.accepting === 'not-accepting' ? 'danger' : 'warning'}" 
+                        style="cursor: pointer;" 
+                        onclick="toggleAccepting(${index})">${acceptingBadge}</span></td>
                     <td>${emailedBadge}</td>
                     <td class="action-cell">
                         <button class="btn-icon btn-edit" title="Edit" onclick="editFaculty(${index})">✏️</button>
@@ -602,6 +604,22 @@
             }
         }
 
+        function toggleAccepting(index) {
+            const faculty = appData.schools[appData.currentSchool].faculty[index];
+            
+            // Cycle through accepting statuses
+            if (faculty.accepting === 'unknown') {
+                faculty.accepting = 'accepting';
+            } else if (faculty.accepting === 'accepting') {
+                faculty.accepting = 'not-accepting';
+            } else {
+                faculty.accepting = 'unknown';
+            }
+            
+            saveData();
+            renderFacultyTable();
+        }
+
         function toggleEmailed(index) {
             const faculty = appData.schools[appData.currentSchool].faculty[index];
             
@@ -629,7 +647,8 @@
 
         function changeSchool(school) {
             // Update active tab
-            schoolTabs.forEach(tab => {
+            const tabs = document.querySelectorAll('.school-tab');
+            tabs.forEach(tab => {
                 if (tab.dataset.school === school) {
                     tab.classList.add('active');
                 } else {
@@ -699,11 +718,15 @@
         
         // Call this function when the page loads
         updateSchoolTabs();
+        
+        // Initial render
+        renderFacultyTable();
 
         // Make functions available globally for onclick handlers
         window.editFaculty = editFaculty;
         window.deleteFaculty = deleteFaculty;
         window.toggleEmailed = toggleEmailed;
+        window.toggleAccepting = toggleAccepting;
     </script>
 </body>
 </html>
