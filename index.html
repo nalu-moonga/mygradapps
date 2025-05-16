@@ -903,13 +903,13 @@
                     school.status = 'pending';
                     break;
                 case 'pending':
-                    school.status = 'accepted';
+                    school.status = 'rejected';
                     break;
                 case 'rejected':
-                    school.status = 'not-applied';
+                    school.status = 'accepted';
                     break;
                 case 'accepted':
-                    school.status = 'rejected';
+                    school.status = 'not-applied';
                     break;
                 default:
                     school.status = 'not-applied';
@@ -919,14 +919,14 @@
             if (school.status === 'accepted') {
               // a little burst from center-top
               confetti({
-                particleCount: 2000,
+                particleCount: 3000,
                 spread: 10000,
-                origin: { x: -0.5, y: 0.2 }
+                origin: { x: 0.99, y: 0.2 }
               });
               confetti({
                 particleCount: 2000,
                 spread: 10000,
-                origin: { x: 0.5, y: 0.2 }
+                origin: { x: 0.01, y: 0.2 }
               });
             }
             
