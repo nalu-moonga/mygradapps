@@ -349,45 +349,47 @@
         </div>
         
         <div class="add-panel">
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="faculty-name">Faculty Name</label>
-                    <input type="text" id="faculty-name" class="form-control" placeholder="e.g. John Smith">
+            <form id="faculty-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="faculty-name">Faculty Name</label>
+                        <input type="text" id="faculty-name" class="form-control" placeholder="e.g. John Smith" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="faculty-email">Email</label>
+                        <input type="email" id="faculty-email" class="form-control" placeholder="e.g. jsmith@mit.edu">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="faculty-email">Email</label>
-                    <input type="email" id="faculty-email" class="form-control" placeholder="e.g. jsmith@mit.edu">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="lab-name">Lab Name</label>
+                        <input type="text" id="lab-name" class="form-control" placeholder="e.g. Quantum Physics Lab">
+                    </div>
+                    <div class="form-group">
+                        <label for="lab-website">Lab Website</label>
+                        <input type="url" id="lab-website" class="form-control" placeholder="e.g. https://lab.mit.edu">
+                    </div>
                 </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="lab-name">Lab Name</label>
-                    <input type="text" id="lab-name" class="form-control" placeholder="e.g. Quantum Physics Lab">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="accepting-status">Accepting Status</label>
+                        <select id="accepting-status" class="form-control">
+                            <option value="unknown">Unknown</option>
+                            <option value="accepting">Is Accepting Next Fall</option>
+                            <option value="not-accepting">Not Accepting</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="emailed-status">Emailed Status</label>
+                        <select id="emailed-status" class="form-control">
+                            <option value="no">Not Emailed</option>
+                            <option value="sent">Email Sent</option>
+                            <option value="replied">Received Reply</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="lab-website">Lab Website</label>
-                    <input type="url" id="lab-website" class="form-control" placeholder="e.g. https://lab.mit.edu">
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="accepting-status">Accepting Status</label>
-                    <select id="accepting-status" class="form-control">
-                        <option value="unknown">Unknown</option>
-                        <option value="accepting">Is Accepting Next Fall</option>
-                        <option value="not-accepting">Not Accepting</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="emailed-status">Emailed Status</label>
-                    <select id="emailed-status" class="form-control">
-                        <option value="no">Not Emailed</option>
-                        <option value="sent">Email Sent</option>
-                        <option value="replied">Received Reply</option>
-                    </select>
-                </div>
-            </div>
-            <button id="add-faculty" class="btn btn-primary">Add Faculty</button>
+                <button id="add-faculty" type="submit" class="btn btn-primary">Add Faculty</button>
+            </form>
         </div>
         
         <div class="current-school">MIT Faculty List</div>
@@ -531,7 +533,20 @@
         const addSchoolTab = document.querySelector('.school-tab[data-school="add-school"]');
 
         // Add event listeners
-        document.getElementById('add-faculty').addEventListener('click', addFaculty);
+        const facultyForm = document.getElementById('faculty-form');
+        facultyForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get the button to check if we're adding or updating
+            const submitButton = document.getElementById('add-faculty');
+            
+            if (submitButton.textContent === 'Update Faculty') {
+                const index = parseInt(submitButton.dataset.editIndex);
+                updateFaculty(index);
+            } else {
+                addFaculty();
+            }
+        });
         
         schoolTabs.forEach(tab => {
             tab.addEventListener('click', () => {
@@ -622,10 +637,7 @@
             const accepting = document.getElementById('accepting-status').value;
             const emailed = document.getElementById('emailed-status').value;
             
-            if (!name) {
-                alert('Faculty name is required!');
-                return;
-            }
+            // Form validation now handled by HTML5 'required' attribute
             
             appData.schools[appData.currentSchool].faculty.push({
                 name,
@@ -644,24 +656,17 @@
         function editFaculty(index) {
             const faculty = appData.schools[appData.currentSchool].faculty[index];
             
-            document.getElementById('faculty-name').value = faculty.name;
+            document.getElementById('faculty-name').value = faculty.name || '';
             document.getElementById('faculty-email').value = faculty.email || '';
             document.getElementById('lab-name').value = faculty.lab || '';
             document.getElementById('lab-website').value = faculty.website || '';
             document.getElementById('accepting-status').value = faculty.accepting || 'unknown';
             document.getElementById('emailed-status').value = faculty.emailed || 'no';
             
-            // Change button to update mode
+            // Store the current index in a data attribute for reference when updating
             const addButton = document.getElementById('add-faculty');
+            addButton.dataset.editIndex = index;
             addButton.textContent = 'Update Faculty';
-            
-            // Important: Remove any existing onclick handlers first
-            addButton.onclick = null;
-            
-            // Set the new onclick handler
-            addButton.onclick = function() {
-                updateFaculty(index);
-            };
         }
 
         function updateFaculty(index) {
@@ -672,28 +677,25 @@
             const accepting = document.getElementById('accepting-status').value;
             const emailed = document.getElementById('emailed-status').value;
             
-            if (!name) {
-                alert('Faculty name is required!');
-                return;
+            // Form validation now handled by HTML5 'required' attribute
+            
+            // Make sure index is valid
+            if (index >= 0 && index < appData.schools[appData.currentSchool].faculty.length) {
+                appData.schools[appData.currentSchool].faculty[index] = {
+                    name,
+                    email,
+                    lab,
+                    website,
+                    accepting,
+                    emailed
+                };
+                
+                saveData();
+                renderFacultyTable();
+                clearForm();
+            } else {
+                console.error('Invalid index for faculty update:', index);
             }
-            
-            appData.schools[appData.currentSchool].faculty[index] = {
-                name,
-                email,
-                lab,
-                website,
-                accepting,
-                emailed
-            };
-            
-            saveData();
-            renderFacultyTable();
-            clearForm();
-            
-            // Reset button
-            const addButton = document.getElementById('add-faculty');
-            addButton.textContent = 'Add Faculty';
-            addButton.onclick = addFaculty;
         }
 
         function deleteFaculty(index) {
@@ -737,21 +739,15 @@
         }
 
         function clearForm() {
-            document.getElementById('faculty-name').value = '';
-            document.getElementById('faculty-email').value = '';
-            document.getElementById('lab-name').value = '';
-            document.getElementById('lab-website').value = '';
-            document.getElementById('accepting-status').value = 'unknown';
-            document.getElementById('emailed-status').value = 'no';
+            // Reset the form using native HTML form reset
+            document.getElementById('faculty-form').reset();
             
             // Reset button to add mode if it's in update mode
             const addButton = document.getElementById('add-faculty');
             if (addButton.textContent === 'Update Faculty') {
                 addButton.textContent = 'Add Faculty';
-                // Remove any existing onclick handlers
-                addButton.onclick = null;
-                // Set back to add mode
-                addButton.onclick = addFaculty;
+                // Clear the edit index
+                delete addButton.dataset.editIndex;
             }
         }
 
